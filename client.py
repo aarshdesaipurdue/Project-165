@@ -93,8 +93,8 @@ def browseFiles():
         print("Cancel Button Pressed")
 
 def download():
-    #textarea.insert(END,"\n"+"\nPlease wait while file is downloading...")
-    #textarea.see("end")
+    infoLabel.insert(END,"\n"+"\nPlease wait while file is downloading...")
+    infoLabel.see("end")
 
     song_to_download = listbox.get(ANCHOR)
     infoLabel.configure(text='Downloading '+song_to_download)
