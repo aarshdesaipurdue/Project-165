@@ -1,3 +1,4 @@
+from distutils.log import info
 from fileinput import filename
 import socket
 from threading import Thread
@@ -30,8 +31,10 @@ infoLabel = None
 global song_counter
 song_counter = 0
 
+
 def play():
     global song_selected
+    global listbox
 
     song_selected = listbox.get(ANCHOR)
 
@@ -58,6 +61,7 @@ def resume():
     mixer.init()
     mixer.music.load('shared_files/'+song_selected)
     mixer.music.play()
+    mixer.music.unpause()
 
 def pause():
     global song_selected
@@ -87,14 +91,13 @@ def browseFiles():
         ftp_server.quit()
 
         listbox.insert(song_counter,fname)
-        song_counter = song_counter + 1
-
+        song_counter += 1
     except FileNotFoundError:
         print("Cancel Button Pressed")
 
+
 def download():
-    infoLabel.insert(END,"\n"+"\nPlease wait while file is downloading...")
-    infoLabel.see("end")
+
 
     song_to_download = listbox.get(ANCHOR)
     infoLabel.configure(text='Downloading '+song_to_download)
@@ -114,15 +117,19 @@ def download():
     ftp_server.quit()
     infoLabel.configure(text="Download Complete")
     time.sleep(1)
-    if (song_selected != ""):
+    if (song_selected !=""):
         infoLabel.configure(text="Now Playing " +song_selected)
     else:
         infoLabel.configure(text="")
-        
+
 
 
 
 def musicWindow():
+
+    global filePathLabel
+    global listbox
+    global infoLabel
 
     global song_counter
     window = Tk()
@@ -135,16 +142,17 @@ def musicWindow():
 
     listbox = Listbox(window,height=10,width=39,activestyle='dotbox',bg='LightSkyBlue',borderwidth=2,font=("Calibri",10))
     listbox.place(x=10,y=18)
-
+    
+    for file in os.listdir("shared_files"):
+      filename = os.fsdecode(file)
+      listbox.insert(song_counter,filename)
+      song_counter = song_counter +1 
 
     scrollbar1 = Scrollbar(listbox)
     scrollbar1.place(relheight=1,relx=1)
     scrollbar1.config(command=listbox.yview)
 
-    for file in os.listdir("shared_files"):
-      filename = os.fsdecode(file)
-      listbox.insert(song_counter,filename)
-      song_counter = song_counter +1 
+
 
     playButton = Button(window,text='Play',bd=1,width=10,bg='SkyBlue',font=("Calibri",10),command=play)
     playButton.place(x=30,y=200)
@@ -153,17 +161,16 @@ def musicWindow():
     Stop.place(x=200,y=200)
 
     ResumeButton = Button(window,text='Resume',width=10,bd=1,bg='SkyBlue',font=("Calibri",10),command=resume)
-    ResumeButton.place(x=30,y=250)
+    ResumeButton.place(x=30,y=225)
 
     PauseButton = Button(window,text='Pause',width=10,bd=1,bg='SkyBlue',font=("Calibri",10),command=pause)
-    PauseButton.place(x=200,y=250)
+    PauseButton.place(x=200,y=225)
 
     Upload = Button(window,text='Upload',bd=1,width=10,bg='SkyBlue',font=("Calibri",10),command=browseFiles)
     Upload.place(x=30,y=250)
 
     Download = Button(window,text='Download',bd=1,width=10,bg='SkyBlue',font=("Calibri",10),command=download)
     Download.place(x=200,y=250)
-
     infoLabel = Label(window,text="",fg='blue',font=("Calibri",8))
     infoLabel.place(x=4,y=280)
 
